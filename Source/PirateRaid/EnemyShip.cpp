@@ -43,7 +43,7 @@ void AEnemyShip::BeginPlay()
 
 	// TODO - Change this when anchor is implemented
 	ShipCurrentSpeed = 0;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle_AutoAttack, this, &AEnemyShip::AutoAttack, FireRate, true);
+	//GetWorld()->GetTimerManager().SetTimer(TimerHandle_AutoAttack, this, &AEnemyShip::AutoAttack, FireRate, true);
 }
 
 // Called every frame

@@ -40,7 +40,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// Returns Movement Component
-	virtual UPawnMovementComponent* GetMovementComponent() const override;
+	virtual UPlayerShipMovementComponent* GetMovementComponent() const;
 
 	// Ship's static mesh
 	UPROPERTY (EditAnywhere, BlueprintReadWrite)
@@ -136,7 +136,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float ShipDirection;
 
-
 	// Method that reacts to wind change events generated in PirateShipGameModeBase
 	UFUNCTION()
 	void WindChanged(float direction, float speed);
@@ -147,4 +146,7 @@ public:
 
 	// Receives damage and ereduces hit points
 	virtual void ReceivedDamage(float Point);
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };

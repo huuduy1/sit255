@@ -26,4 +26,8 @@ public:
 
 	// Ship rotation amount used each tick
 	FRotator Rotation;
+
+	void OnImpact(const FHitResult & Impact, const FVector & MoveDelta);
+
+	FVector ComputeBounceResult(const FVector HitNormal, const FVector & MoveDelta);
 };

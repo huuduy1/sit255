@@ -4,6 +4,7 @@
 #include "Engine.h"
 #include "CppBullet.h"
 #include "AnchoredShipState.h"
+#include "PlayerShipMovementComponent.h"
 #include "PirateRaidGameModeBase.h"
 
 
@@ -15,6 +16,7 @@ APlayerShipPawn::APlayerShipPawn(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bCanEverTick = true;
 
 	ship = CreateDefaultSubobject<UStaticMeshComponent>("playership");
+	ship->OnComponentHit.AddDynamic(this, &APlayerShipPawn::OnHit);
 	RootComponent = ship;
 
 	springArm = CreateDefaultSubobject<USpringArmComponent>("springArm");
@@ -147,7 +149,7 @@ void APlayerShipPawn::ToggleAnchor()
 }
 
 // Returns Movement Component
-UPawnMovementComponent* APlayerShipPawn::GetMovementComponent() const
+UPlayerShipMovementComponent* APlayerShipPawn::GetMovementComponent() const
 {
 	return MovementComponent;
 }
@@ -197,14 +199,15 @@ void APlayerShipPawn::ReceivedDamage(float Point)
 {
 	if (ShipCurrentHP > 0)
 	{
-		ShipCurrentHP--;
+		ShipCurrentHP -= Point;
 		UE_LOG(LogTemp, Log, TEXT("%s received %f damage, remaining HP: %f"), *GetName(), Point, ShipCurrentHP);
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, FString::Printf(TEXT("%s received %f damage, remaining HP: %f"), *GetName(), Point, ShipCurrentHP));
 		}		
 	}
-	else
+
+	if(ShipCurrentHP <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT(" Game Over !!"));
 		if (GEngine)
@@ -212,5 +215,18 @@ void APlayerShipPawn::ReceivedDamage(float Point)
 			GEngine->AddOnScreenDebugMessage(2, 5.f, FColor::Red, FString::Printf(TEXT("Game Over !!")));
 		}		
 	}
+}
+
+void APlayerShipPawn::OnHit(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit)
+{
+	//if(OtherActor->GetName() == "BP_I"
+	
+	if (HitComp->GetCollisionProfileName().ToString() == "BlockAllDynamic") {
+		FVector MoveDelta = GetActorForwardVector() * ShipCurrentSpeed;
+		GetMovementComponent()->OnImpact(Hit, MoveDelta);
+		ShipCurrentSpeed = ShipCurrentSpeed * 0.3f;
+		ReceivedDamage(10.0f);		
+	};
+	UE_LOG(LogTemp, Warning, TEXT(" Hit Something !!  %s"), *HitComp->GetCollisionProfileName().ToString());	
 }
 
